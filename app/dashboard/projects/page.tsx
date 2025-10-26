@@ -6,10 +6,15 @@ import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/shared/Header';
 import { SAMPLE_PROJECTS, SAMPLE_USERS } from '@/lib/data';
 import { STATUS_CONFIG } from '@/lib/constants';
+import AddProjectModal from '@/components/projects/AddProjectModal';
+import ProjectDetailModal from '@/components/projects/ProjectDetailModal';
+import type { Project } from '@/lib/types';
 
 export default function ProjectsPage() {
   const { currentUser } = useAuth();
   const [statusFilter, setStatusFilter] = useState('all');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   if (!currentUser) return null;
 
@@ -58,7 +63,10 @@ export default function ProjectsPage() {
                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               </div>
 
-              <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+              >
                 <Plus size={18} />
                 새 프로젝트
               </button>
@@ -75,6 +83,7 @@ export default function ProjectsPage() {
             return (
               <div
                 key={project.id}
+                onClick={() => setSelectedProject(project)}
                 className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer"
               >
                 <div className="flex items-start justify-between mb-4">
@@ -124,6 +133,20 @@ export default function ProjectsPage() {
           </div>
         )}
       </div>
+
+      {/* 모달 */}
+      {showAddModal && (
+        <AddProjectModal onClose={() => setShowAddModal(false)} />
+      )}
+
+      {selectedProject && (
+        <ProjectDetailModal
+          project={selectedProject}
+          onClose={() => setSelectedProject(null)}
+          currentUser={currentUser}
+          isAdmin={isAdmin}
+        />
+      )}
     </>
   );
 }

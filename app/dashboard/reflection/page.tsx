@@ -1,20 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Target } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronLeft, ChevronRight, ChevronDown, Target } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/shared/Header';
-import { SAMPLE_REFLECTIONS } from '@/lib/data';
+import { SAMPLE_REFLECTIONS, SAMPLE_USERS } from '@/lib/data';
 
 export default function ReflectionPage() {
   const { currentUser } = useAuth();
   const [selectedDate, setSelectedDate] = useState(new Date(2025, 9, 24));
+  const [reflectionTab, setReflectionTab] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+  const [filterUser, setFilterUser] = useState('all');
 
   if (!currentUser) return null;
 
   const isAdmin = currentUser.role === 'admin';
   const year = selectedDate.getFullYear();
   const month = selectedDate.getMonth();
+  const today = new Date(2025, 9, 24);
 
   const monthKey = `${year}-${month + 1}`;
   const getWeekKey = (date: Date) => {
@@ -23,9 +26,257 @@ export default function ReflectionPage() {
     const week = Math.ceil((((date.getTime() - onejan.getTime()) / 86400000) + onejan.getDay() + 1) / 7);
     return `${year}-W${week}`;
   };
+  const getWeekOfMonth = (date: Date) => {
+    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    const weekOfMonth = Math.ceil((date.getDate() + firstDay.getDay()) / 7);
+    return weekOfMonth;
+  };
   const weekKey = getWeekKey(selectedDate);
   const dateKey = selectedDate.toISOString().split('T')[0];
+  const weekOfMonth = getWeekOfMonth(selectedDate);
 
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayOfMonth = new Date(year, month, 1).getDay();
+  const calendarDays = Array.from({ length: 42 }, (_, i) => {
+    const dayNum = i - firstDayOfMonth + 1;
+    if (dayNum < 1 || dayNum > daysInMonth) return null;
+    return new Date(year, month, dayNum);
+  });
+
+  const navigateMonth = (direction: number) => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(month + direction);
+    setSelectedDate(newDate);
+  };
+
+  // 관리자 뷰
+  if (isAdmin) {
+    const tabs = [
+      { id: 'daily' as const, label: '일간' },
+      { id: 'weekly' as const, label: '주간' },
+      { id: 'monthly' as const, label: '월간' }
+    ];
+
+    const filteredReflections = useMemo(() => {
+      const key = reflectionTab === 'daily' ? dateKey : reflectionTab === 'weekly' ? weekKey : monthKey;
+      const data = SAMPLE_REFLECTIONS[reflectionTab]?.[key];
+
+      if (!data) return { goals: [], reflections: [] };
+
+      if (filterUser === 'all') return data;
+
+      return {
+        goals: data.goals.filter(g => g.userId === parseInt(filterUser)),
+        reflections: data.reflections.filter(r => r.userId === parseInt(filterUser))
+      };
+    }, [reflectionTab, dateKey, weekKey, monthKey, filterUser]);
+
+    const groupedByUser = useMemo(() => {
+      const users = filterUser === 'all'
+        ? SAMPLE_USERS.filter(u => u.role === 'member')
+        : SAMPLE_USERS.filter(u => u.id === parseInt(filterUser));
+
+      return users.map(user => {
+        const userGoal = filteredReflections.goals.find(g => g.userId === user.id);
+        const userReflection = filteredReflections.reflections.find(r => r.userId === user.id);
+        return {
+          user,
+          goal: userGoal,
+          reflection: userReflection
+        };
+      });
+    }, [filteredReflections, filterUser]);
+
+    return (
+      <>
+        <Header currentUser={currentUser} title="목표·회고" />
+        <div className="p-6 space-y-6">
+          {/* 캘린더 */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-green-600 text-white p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-2xl font-bold">
+                  {year}년 {month + 1}월
+                </h3>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => navigateMonth(-1)}
+                    className="p-2 hover:bg-green-700 rounded-lg transition-colors"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    onClick={() => setSelectedDate(today)}
+                    className="px-4 py-2 bg-green-700 hover:bg-green-800 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    오늘
+                  </button>
+                  <button
+                    onClick={() => navigateMonth(1)}
+                    className="p-2 hover:bg-green-700 rounded-lg transition-colors"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-7 gap-2">
+                {['일', '월', '화', '수', '목', '금', '토'].map((day, idx) => (
+                  <div
+                    key={day}
+                    className={`text-center py-2 text-sm font-medium ${
+                      idx === 0 ? 'text-red-200' : idx === 6 ? 'text-blue-200' : 'text-white'
+                    }`}
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-4">
+              <div className="grid grid-cols-7 gap-2">
+                {calendarDays.map((date, idx) => {
+                  if (!date) {
+                    return <div key={idx} className="min-h-[100px]" />;
+                  }
+
+                  const isToday = date.toDateString() === today.toDateString();
+                  const isSelected = date.toDateString() === selectedDate.toDateString();
+                  const dayOfWeek = date.getDay();
+
+                  const dateKey = date.toISOString().split('T')[0];
+                  const hasGoal = SAMPLE_REFLECTIONS.daily?.[dateKey]?.goals?.length > 0;
+                  const hasReflection = SAMPLE_REFLECTIONS.daily?.[dateKey]?.reflections?.length > 0;
+
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedDate(date)}
+                      className={`min-h-[100px] p-2 rounded-lg border-2 transition-all hover:shadow-md text-left ${
+                        isSelected
+                          ? 'border-green-500 bg-green-50'
+                          : isToday
+                          ? 'border-green-300 bg-green-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="h-full flex flex-col">
+                        <span
+                          className={`text-sm font-medium mb-2 ${
+                            dayOfWeek === 0 ? 'text-red-600' : dayOfWeek === 6 ? 'text-blue-600' : 'text-gray-700'
+                          } ${isToday ? 'font-bold' : ''}`}
+                        >
+                          {date.getDate()}
+                        </span>
+                        <div className="flex-1 flex flex-col gap-1">
+                          {hasGoal && (
+                            <div className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">
+                              목표 {SAMPLE_REFLECTIONS.daily[dateKey].goals.length}
+                            </div>
+                          )}
+                          {hasReflection && (
+                            <div className="text-xs px-2 py-1 rounded bg-purple-100 text-purple-700">
+                              회고 {SAMPLE_REFLECTIONS.daily[dateKey].reflections.length}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* 탭 및 필터 */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setReflectionTab(tab.id)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      reflectionTab === tab.id ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative">
+                <select
+                  value={filterUser}
+                  onChange={(e) => setFilterUser(e.target.value)}
+                  className="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="all">전체 사원</option>
+                  {SAMPLE_USERS.filter(u => u.role === 'member').map(u => (
+                    <option key={u.id} value={u.id}>{u.name}</option>
+                  ))}
+                </select>
+                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              </div>
+            </div>
+          </div>
+
+          {/* 사원별 목표·회고 카드 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {groupedByUser.map(({ user, goal, reflection }) => (
+              <div key={user.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                  <span className="text-2xl">{user.avatar}</span>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">{user.name}</h3>
+                    <p className="text-xs text-gray-500">
+                      {reflectionTab === 'daily' ? selectedDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) :
+                       reflectionTab === 'weekly' ? `${month + 1}월 ${weekOfMonth}째주` :
+                       `${year}년 ${month + 1}월`}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">목표</h4>
+                    {goal ? (
+                      <div className="p-3 bg-green-50 rounded-lg">
+                        <p className="text-sm text-gray-700 whitespace-pre-line">{goal.content}</p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-400 italic">등록된 목표가 없습니다.</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">회고</h4>
+                    {reflection ? (
+                      <div className="p-3 bg-purple-50 rounded-lg">
+                        <p className="text-sm text-gray-700">{reflection.content}</p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-400 italic">등록된 회고가 없습니다.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {groupedByUser.length === 0 && (
+            <div className="text-center py-12">
+              <Target size={48} className="mx-auto mb-3 text-gray-300" />
+              <p className="text-gray-500">표시할 내용이 없습니다.</p>
+            </div>
+          )}
+        </div>
+      </>
+    );
+  }
+
+  // 사원 뷰
   const monthlyGoal = SAMPLE_REFLECTIONS.monthly?.[monthKey]?.goals.find(g => g.userId === currentUser.id);
   const monthlyReflection = SAMPLE_REFLECTIONS.monthly?.[monthKey]?.reflections.find(r => r.userId === currentUser.id);
 
@@ -89,9 +340,109 @@ export default function ReflectionPage() {
           </div>
         </div>
 
+        {/* 캘린더 (사원용) */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-purple-600 text-white p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-2xl font-bold">
+                {year}년 {month + 1}월
+              </h3>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigateMonth(-1)}
+                  className="p-2 hover:bg-purple-700 rounded-lg transition-colors"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={() => setSelectedDate(today)}
+                  className="px-4 py-2 bg-purple-700 hover:bg-purple-800 rounded-lg text-sm font-medium transition-colors"
+                >
+                  오늘
+                </button>
+                <button
+                  onClick={() => navigateMonth(1)}
+                  className="p-2 hover:bg-purple-700 rounded-lg transition-colors"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-7 gap-2">
+              {['일', '월', '화', '수', '목', '금', '토'].map((day, idx) => (
+                <div
+                  key={day}
+                  className={`text-center py-2 text-sm font-medium ${
+                    idx === 0 ? 'text-red-200' : idx === 6 ? 'text-blue-200' : 'text-white'
+                  }`}
+                >
+                  {day}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-4">
+            <div className="grid grid-cols-7 gap-2">
+              {calendarDays.map((date, idx) => {
+                if (!date) {
+                  return <div key={idx} className="min-h-[100px]" />;
+                }
+
+                const isToday = date.toDateString() === today.toDateString();
+                const isSelected = date.toDateString() === selectedDate.toDateString();
+                const dayOfWeek = date.getDay();
+
+                const dateKey = date.toISOString().split('T')[0];
+                const hasGoal = SAMPLE_REFLECTIONS.daily?.[dateKey]?.goals?.find(g => g.userId === currentUser.id);
+                const hasReflection = SAMPLE_REFLECTIONS.daily?.[dateKey]?.reflections?.find(r => r.userId === currentUser.id);
+
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedDate(date)}
+                    className={`min-h-[100px] p-2 rounded-lg border-2 transition-all hover:shadow-md text-left ${
+                      isSelected
+                        ? 'border-purple-500 bg-purple-50'
+                        : isToday
+                        ? 'border-purple-300 bg-purple-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="h-full flex flex-col">
+                      <span
+                        className={`text-sm font-medium mb-2 ${
+                          dayOfWeek === 0 ? 'text-red-600' : dayOfWeek === 6 ? 'text-blue-600' : 'text-gray-700'
+                        } ${isToday ? 'font-bold' : ''}`}
+                      >
+                        {date.getDate()}
+                      </span>
+                      <div className="flex-1 flex flex-col gap-1">
+                        {hasGoal && (
+                          <div className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">
+                            목표
+                          </div>
+                        )}
+                        {hasReflection && (
+                          <div className="text-xs px-2 py-1 rounded bg-purple-100 text-purple-700">
+                            회고
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         {/* 주간 목표·회고 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">주간 목표·회고</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-4">
+            {month + 1}월 {weekOfMonth}째주 주간 목표·회고
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-3">주간 목표</h4>
