@@ -65,7 +65,7 @@ export const SAMPLE_SCHEDULES: Schedule[] = [
   {
     id: 1,
     title: '클라이언트 미팅',
-    userId: 2,
+    userIds: [2, 3],
     projectId: 1,
     startDate: '2025-10-24',
     endDate: '2025-10-24',
@@ -76,7 +76,7 @@ export const SAMPLE_SCHEDULES: Schedule[] = [
   {
     id: 2,
     title: 'UI 디자인 검토',
-    userId: 3,
+    userIds: [3],
     projectId: 1,
     startDate: '2025-10-24',
     endDate: '2025-10-25',
@@ -87,7 +87,7 @@ export const SAMPLE_SCHEDULES: Schedule[] = [
   {
     id: 3,
     title: 'API 개발',
-    userId: 2,
+    userIds: [2],
     projectId: 2,
     startDate: '2025-10-26',
     endDate: '2025-10-28',
@@ -98,7 +98,7 @@ export const SAMPLE_SCHEDULES: Schedule[] = [
   {
     id: 4,
     title: '테스트 계획 수립',
-    userId: 4,
+    userIds: [4],
     projectId: 2,
     startDate: '2025-10-28',
     endDate: '2025-10-29',
@@ -109,7 +109,7 @@ export const SAMPLE_SCHEDULES: Schedule[] = [
   {
     id: 5,
     title: '데이터 분석',
-    userId: 3,
+    userIds: [3],
     projectId: 3,
     startDate: '2025-10-29',
     endDate: '2025-10-30',
@@ -120,7 +120,7 @@ export const SAMPLE_SCHEDULES: Schedule[] = [
   {
     id: 6,
     title: '코드 리뷰',
-    userId: 2,
+    userIds: [2],
     projectId: 1,
     startDate: '2025-10-24',
     endDate: '2025-10-24',

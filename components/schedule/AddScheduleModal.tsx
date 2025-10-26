@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import Modal from '@/components/shared/Modal';
+import MultiSelect from '@/components/shared/MultiSelect';
 import { SAMPLE_USERS, SAMPLE_PROJECTS } from '@/lib/data';
 import { STATUS_CONFIG } from '@/lib/constants';
 import type { User, ScheduleColor, ScheduleStatus } from '@/lib/types';
@@ -18,7 +19,7 @@ export default function AddScheduleModal({ onClose, currentUser, isAdmin }: AddS
     title: '',
     startDate: '',
     endDate: '',
-    userId: currentUser.id,
+    userIds: isAdmin ? [] : [currentUser.id],
     projectId: 0,
     content: '',
     color: 'blue' as ScheduleColor,
@@ -30,6 +31,12 @@ export default function AddScheduleModal({ onClose, currentUser, isAdmin }: AddS
     console.log('New schedule:', formData);
     onClose();
   };
+
+  const memberOptions = SAMPLE_USERS.filter(u => u.role === 'member').map(u => ({
+    id: u.id,
+    name: u.name,
+    avatar: u.avatar
+  }));
 
   return (
     <Modal title="새 일정 추가" onClose={onClose}>
@@ -71,23 +78,14 @@ export default function AddScheduleModal({ onClose, currentUser, isAdmin }: AddS
           </div>
         </div>
 
-        {isAdmin && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">담당자</label>
-            <div className="relative">
-              <select
-                value={formData.userId}
-                onChange={(e) => setFormData({ ...formData, userId: parseInt(e.target.value) })}
-                className="appearance-none w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {SAMPLE_USERS.filter(u => u.role === 'member').map(u => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
-                ))}
-              </select>
-              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-            </div>
-          </div>
-        )}
+        <MultiSelect
+          label="담당자"
+          options={memberOptions}
+          selected={formData.userIds}
+          onChange={(selected) => setFormData({ ...formData, userIds: selected })}
+          placeholder="담당자를 선택하세요"
+          disabled={!isAdmin}
+        />
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">프로젝트</label>

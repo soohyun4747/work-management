@@ -7,13 +7,13 @@ export interface User {
   avatar: string;
 }
 
-export type ScheduleStatus = 'progress' | 'completed' | 'paused';
+export type ScheduleStatus = 'pending' | 'progress' | 'completed' | 'paused';
 export type ScheduleColor = 'blue' | 'purple' | 'green' | 'orange' | 'pink' | 'indigo' | 'red' | 'yellow';
 
 export interface Schedule {
   id: number;
   title: string;
-  userId: number;
+  userIds: number[];  // 여러 담당자 지원
   projectId: number;
   startDate: string;
   endDate: string;
@@ -22,7 +22,7 @@ export interface Schedule {
   content: string;
 }
 
-export type ProjectStatus = 'progress' | 'completed' | 'paused';
+export type ProjectStatus = 'pending' | 'progress' | 'completed' | 'paused';
 
 export interface ProjectFile {
   id: number;
