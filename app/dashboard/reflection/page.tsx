@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, Target } from 'lucide-react';
+import { ChevronDown, Target } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMobileSidebar } from '@/app/dashboard/layout';
 import Header from '@/components/shared/Header';
+import Calendar from '@/components/shared/Calendar';
 import { SAMPLE_REFLECTIONS, SAMPLE_USERS } from '@/lib/data';
 
 export default function ReflectionPage() {
@@ -36,14 +37,6 @@ export default function ReflectionPage() {
   const weekKey = getWeekKey(selectedDate);
   const dateKey = selectedDate.toISOString().split('T')[0];
   const weekOfMonth = getWeekOfMonth(selectedDate);
-
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDayOfMonth = new Date(year, month, 1).getDay();
-  const calendarDays = Array.from({ length: 42 }, (_, i) => {
-    const dayNum = i - firstDayOfMonth + 1;
-    if (dayNum < 1 || dayNum > daysInMonth) return null;
-    return new Date(year, month, dayNum);
-  });
 
   const navigateMonth = (direction: number) => {
     const newDate = new Date(selectedDate);
@@ -97,109 +90,44 @@ export default function ReflectionPage() {
     const adminDailyGoal = SAMPLE_REFLECTIONS.daily?.[dateKey]?.goals.find(g => g.userId === currentUser.id);
     const adminDailyReflection = SAMPLE_REFLECTIONS.daily?.[dateKey]?.reflections.find(r => r.userId === currentUser.id);
 
+    const renderAdminDayContent = (date: Date, dateKey: string) => {
+      const hasGoal = SAMPLE_REFLECTIONS.daily?.[dateKey]?.goals?.length > 0;
+      const hasReflection = SAMPLE_REFLECTIONS.daily?.[dateKey]?.reflections?.length > 0;
+
+      return (
+        <>
+          {hasGoal && (
+            <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-green-100 text-green-700">
+              <span className="hidden md:inline">목표 {SAMPLE_REFLECTIONS.daily[dateKey].goals.length}</span>
+              <span className="md:hidden">목</span>
+            </div>
+          )}
+          {hasReflection && (
+            <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-purple-100 text-purple-700">
+              <span className="hidden md:inline">회고 {SAMPLE_REFLECTIONS.daily[dateKey].reflections.length}</span>
+              <span className="md:hidden">회</span>
+            </div>
+          )}
+        </>
+      );
+    };
+
     return (
       <>
         <Header currentUser={currentUser} title="목표·회고" onMenuClick={toggleSidebar} />
         <div className="p-6 space-y-6">
           {/* 캘린더 */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-white p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {year}년 {month + 1}월
-                </h3>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => navigateMonth(-1)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <ChevronLeft size={20} className="text-gray-700" />
-                  </button>
-                  <button
-                    onClick={() => setSelectedDate(today)}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    오늘
-                  </button>
-                  <button
-                    onClick={() => navigateMonth(1)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <ChevronRight size={20} className="text-gray-700" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-7 gap-2">
-                {['일', '월', '화', '수', '목', '금', '토'].map((day, idx) => (
-                  <div
-                    key={day}
-                    className={`text-center py-2 text-sm font-medium ${
-                      idx === 0 ? 'text-red-600' : idx === 6 ? 'text-blue-600' : 'text-gray-700'
-                    }`}
-                  >
-                    {day}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-2 md:p-4">
-              <div className="grid grid-cols-7 gap-1 md:gap-2">
-                {calendarDays.map((date, idx) => {
-                  if (!date) {
-                    return <div key={idx} className="min-h-[60px] md:min-h-[100px]" />;
-                  }
-
-                  const isToday = date.toDateString() === today.toDateString();
-                  const isSelected = date.toDateString() === selectedDate.toDateString();
-                  const dayOfWeek = date.getDay();
-
-                  const dateKey = date.toISOString().split('T')[0];
-                  const hasGoal = SAMPLE_REFLECTIONS.daily?.[dateKey]?.goals?.length > 0;
-                  const hasReflection = SAMPLE_REFLECTIONS.daily?.[dateKey]?.reflections?.length > 0;
-
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedDate(date)}
-                      className={`min-h-[60px] md:min-h-[100px] p-1 md:p-2 rounded-lg border-2 transition-all hover:shadow-md text-left ${
-                        isSelected
-                          ? 'border-green-500 bg-green-50'
-                          : isToday
-                          ? 'border-green-300 bg-green-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="h-full flex flex-col">
-                        <span
-                          className={`text-xs md:text-sm font-medium mb-1 md:mb-2 ${
-                            dayOfWeek === 0 ? 'text-red-600' : dayOfWeek === 6 ? 'text-blue-600' : 'text-gray-700'
-                          } ${isToday ? 'font-bold' : ''}`}
-                        >
-                          {date.getDate()}
-                        </span>
-                        <div className="flex-1 flex flex-col gap-0.5 md:gap-1">
-                          {hasGoal && (
-                            <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-green-100 text-green-700">
-                              <span className="hidden md:inline">목표 {SAMPLE_REFLECTIONS.daily[dateKey].goals.length}</span>
-                              <span className="md:hidden">목</span>
-                            </div>
-                          )}
-                          {hasReflection && (
-                            <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-purple-100 text-purple-700">
-                              <span className="hidden md:inline">회고 {SAMPLE_REFLECTIONS.daily[dateKey].reflections.length}</span>
-                              <span className="md:hidden">회</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          <Calendar
+            year={year}
+            month={month}
+            selectedDate={selectedDate}
+            today={today}
+            onDateSelect={setSelectedDate}
+            onMonthChange={navigateMonth}
+            onTodayClick={() => setSelectedDate(today)}
+            renderDayContent={renderAdminDayContent}
+            themeColor="green"
+          />
 
           {/* 탭 및 필터 */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -378,6 +306,28 @@ export default function ReflectionPage() {
   const dailyGoal = SAMPLE_REFLECTIONS.daily?.[dateKey]?.goals.find(g => g.userId === currentUser.id);
   const dailyReflection = SAMPLE_REFLECTIONS.daily?.[dateKey]?.reflections.find(r => r.userId === currentUser.id);
 
+  const renderEmployeeDayContent = (date: Date, dateKey: string) => {
+    const hasGoal = SAMPLE_REFLECTIONS.daily?.[dateKey]?.goals?.find(g => g.userId === currentUser.id);
+    const hasReflection = SAMPLE_REFLECTIONS.daily?.[dateKey]?.reflections?.find(r => r.userId === currentUser.id);
+
+    return (
+      <>
+        {hasGoal && (
+          <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-green-100 text-green-700">
+            <span className="hidden md:inline">목표</span>
+            <span className="md:hidden">목</span>
+          </div>
+        )}
+        {hasReflection && (
+          <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-purple-100 text-purple-700">
+            <span className="hidden md:inline">회고</span>
+            <span className="md:hidden">회</span>
+          </div>
+        )}
+      </>
+    );
+  };
+
   return (
     <>
       <Header currentUser={currentUser} title="목표·회고" onMenuClick={toggleSidebar} />
@@ -433,104 +383,17 @@ export default function ReflectionPage() {
         </div>
 
         {/* 캘린더 (사원용) */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-white p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-bold text-gray-900">
-                {year}년 {month + 1}월
-              </h3>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => navigateMonth(-1)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <ChevronLeft size={20} className="text-gray-700" />
-                </button>
-                <button
-                  onClick={() => setSelectedDate(today)}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
-                >
-                  오늘
-                </button>
-                <button
-                  onClick={() => navigateMonth(1)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <ChevronRight size={20} className="text-gray-700" />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-7 gap-2">
-              {['일', '월', '화', '수', '목', '금', '토'].map((day, idx) => (
-                <div
-                  key={day}
-                  className={`text-center py-2 text-sm font-medium ${
-                    idx === 0 ? 'text-red-600' : idx === 6 ? 'text-blue-600' : 'text-gray-700'
-                  }`}
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="p-2 md:p-4">
-            <div className="grid grid-cols-7 gap-1 md:gap-2">
-              {calendarDays.map((date, idx) => {
-                if (!date) {
-                  return <div key={idx} className="min-h-[60px] md:min-h-[100px]" />;
-                }
-
-                const isToday = date.toDateString() === today.toDateString();
-                const isSelected = date.toDateString() === selectedDate.toDateString();
-                const dayOfWeek = date.getDay();
-
-                const dateKey = date.toISOString().split('T')[0];
-                const hasGoal = SAMPLE_REFLECTIONS.daily?.[dateKey]?.goals?.find(g => g.userId === currentUser.id);
-                const hasReflection = SAMPLE_REFLECTIONS.daily?.[dateKey]?.reflections?.find(r => r.userId === currentUser.id);
-
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedDate(date)}
-                    className={`min-h-[60px] md:min-h-[100px] p-1 md:p-2 rounded-lg border-2 transition-all hover:shadow-md text-left ${
-                      isSelected
-                        ? 'border-purple-500 bg-purple-50'
-                        : isToday
-                        ? 'border-purple-300 bg-purple-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="h-full flex flex-col">
-                      <span
-                        className={`text-xs md:text-sm font-medium mb-1 md:mb-2 ${
-                          dayOfWeek === 0 ? 'text-red-600' : dayOfWeek === 6 ? 'text-blue-600' : 'text-gray-700'
-                        } ${isToday ? 'font-bold' : ''}`}
-                      >
-                        {date.getDate()}
-                      </span>
-                      <div className="flex-1 flex flex-col gap-0.5 md:gap-1">
-                        {hasGoal && (
-                          <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-green-100 text-green-700">
-                            <span className="hidden md:inline">목표</span>
-                            <span className="md:hidden">목</span>
-                          </div>
-                        )}
-                        {hasReflection && (
-                          <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-purple-100 text-purple-700">
-                            <span className="hidden md:inline">회고</span>
-                            <span className="md:hidden">회</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        <Calendar
+          year={year}
+          month={month}
+          selectedDate={selectedDate}
+          today={today}
+          onDateSelect={setSelectedDate}
+          onMonthChange={navigateMonth}
+          onTodayClick={() => setSelectedDate(today)}
+          renderDayContent={renderEmployeeDayContent}
+          themeColor="purple"
+        />
 
         {/* 주간 목표·회고 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

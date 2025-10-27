@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, ChevronDown, Plus, User, FolderKanban } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronDown, Plus, User, FolderKanban } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMobileSidebar } from '@/app/dashboard/layout';
 import Header from '@/components/shared/Header';
+import Calendar from '@/components/shared/Calendar';
 import { SAMPLE_SCHEDULES, SAMPLE_USERS, SAMPLE_PROJECTS } from '@/lib/data';
 import { STATUS_CONFIG } from '@/lib/constants';
 import AddScheduleModal from '@/components/schedule/AddScheduleModal';
@@ -25,14 +26,6 @@ export default function SchedulePage() {
   const year = selectedDate.getFullYear();
   const month = selectedDate.getMonth();
   const today = new Date(2025, 9, 24);
-
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDayOfMonth = new Date(year, month, 1).getDay();
-  const calendarDays = Array.from({ length: 42 }, (_, i) => {
-    const dayNum = i - firstDayOfMonth + 1;
-    if (dayNum < 1 || dayNum > daysInMonth) return null;
-    return new Date(year, month, dayNum);
-  });
 
   const filteredSchedules = useMemo(() => {
     return SAMPLE_SCHEDULES.filter(schedule => {
@@ -63,6 +56,27 @@ export default function SchedulePage() {
     const newDate = new Date(selectedDate);
     newDate.setMonth(month + direction);
     setSelectedDate(newDate);
+  };
+
+  const renderDayContent = (date: Date) => {
+    const daySchedules = getSchedulesForDate(date);
+
+    return (
+      <>
+        {daySchedules.slice(0, 2).map((schedule) => (
+          <div
+            key={schedule.id}
+            className={`text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-${schedule.color}-100 text-${schedule.color}-700 truncate`}
+          >
+            <span className="hidden md:inline">{schedule.title}</span>
+            <span className="md:hidden">•</span>
+          </div>
+        ))}
+        {daySchedules.length > 2 && (
+          <span className="text-[10px] md:text-xs text-gray-500 px-1 md:px-2">+{daySchedules.length - 2}</span>
+        )}
+      </>
+    );
   };
 
   return (
@@ -115,101 +129,17 @@ export default function SchedulePage() {
         </div>
 
         {/* 캘린더 */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-white p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-bold text-gray-900">
-                {year}년 {month + 1}월
-              </h3>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => navigateMonth(-1)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <ChevronLeft size={20} className="text-gray-700" />
-                </button>
-                <button
-                  onClick={() => setSelectedDate(today)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
-                >
-                  오늘
-                </button>
-                <button
-                  onClick={() => navigateMonth(1)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <ChevronRight size={20} className="text-gray-700" />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-7 gap-2">
-              {['일', '월', '화', '수', '목', '금', '토'].map((day, idx) => (
-                <div
-                  key={day}
-                  className={`text-center py-2 text-sm font-medium ${
-                    idx === 0 ? 'text-red-600' : idx === 6 ? 'text-blue-600' : 'text-gray-700'
-                  }`}
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="p-2 md:p-4">
-            <div className="grid grid-cols-7 gap-1 md:gap-2">
-              {calendarDays.map((date, idx) => {
-                if (!date) {
-                  return <div key={idx} className="min-h-[60px] md:min-h-[120px]" />;
-                }
-
-                const daySchedules = getSchedulesForDate(date);
-                const isToday = date.toDateString() === today.toDateString();
-                const isSelected = date.toDateString() === selectedDate.toDateString();
-                const dayOfWeek = date.getDay();
-
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedDate(date)}
-                    className={`min-h-[60px] md:min-h-[120px] p-1 md:p-2 rounded-lg border-2 transition-all hover:shadow-md text-left ${
-                      isSelected
-                        ? 'border-blue-500 bg-blue-50'
-                        : isToday
-                        ? 'border-blue-300 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="h-full flex flex-col">
-                      <span
-                        className={`text-xs md:text-sm font-medium mb-1 md:mb-2 ${
-                          dayOfWeek === 0 ? 'text-red-600' : dayOfWeek === 6 ? 'text-blue-600' : 'text-gray-700'
-                        } ${isToday ? 'font-bold' : ''}`}
-                      >
-                        {date.getDate()}
-                      </span>
-                      <div className="flex-1 flex flex-col gap-0.5 md:gap-1 overflow-hidden">
-                        {daySchedules.slice(0, 2).map((schedule) => (
-                          <div
-                            key={schedule.id}
-                            className={`text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-${schedule.color}-100 text-${schedule.color}-700 truncate`}
-                          >
-                            <span className="hidden md:inline">{schedule.title}</span>
-                            <span className="md:hidden">•</span>
-                          </div>
-                        ))}
-                        {daySchedules.length > 2 && (
-                          <span className="text-[10px] md:text-xs text-gray-500 px-1 md:px-2">+{daySchedules.length - 2}</span>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        <Calendar
+          year={year}
+          month={month}
+          selectedDate={selectedDate}
+          today={today}
+          onDateSelect={setSelectedDate}
+          onMonthChange={navigateMonth}
+          onTodayClick={() => setSelectedDate(today)}
+          renderDayContent={renderDayContent}
+          themeColor="blue"
+        />
 
         {/* 선택된 날짜의 일정 목록 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
