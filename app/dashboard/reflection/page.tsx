@@ -144,11 +144,11 @@ export default function ReflectionPage() {
               </div>
             </div>
 
-            <div className="p-4">
-              <div className="grid grid-cols-7 gap-2">
+            <div className="p-2 md:p-4">
+              <div className="grid grid-cols-7 gap-1 md:gap-2">
                 {calendarDays.map((date, idx) => {
                   if (!date) {
-                    return <div key={idx} className="min-h-[100px]" />;
+                    return <div key={idx} className="min-h-[60px] md:min-h-[100px]" />;
                   }
 
                   const isToday = date.toDateString() === today.toDateString();
@@ -163,7 +163,7 @@ export default function ReflectionPage() {
                     <button
                       key={idx}
                       onClick={() => setSelectedDate(date)}
-                      className={`min-h-[100px] p-2 rounded-lg border-2 transition-all hover:shadow-md text-left ${
+                      className={`min-h-[60px] md:min-h-[100px] p-1 md:p-2 rounded-lg border-2 transition-all hover:shadow-md text-left ${
                         isSelected
                           ? 'border-green-500 bg-green-50'
                           : isToday
@@ -173,21 +173,23 @@ export default function ReflectionPage() {
                     >
                       <div className="h-full flex flex-col">
                         <span
-                          className={`text-sm font-medium mb-2 ${
+                          className={`text-xs md:text-sm font-medium mb-1 md:mb-2 ${
                             dayOfWeek === 0 ? 'text-red-600' : dayOfWeek === 6 ? 'text-blue-600' : 'text-gray-700'
                           } ${isToday ? 'font-bold' : ''}`}
                         >
                           {date.getDate()}
                         </span>
-                        <div className="flex-1 flex flex-col gap-1">
+                        <div className="flex-1 flex flex-col gap-0.5 md:gap-1">
                           {hasGoal && (
-                            <div className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">
-                              목표 {SAMPLE_REFLECTIONS.daily[dateKey].goals.length}
+                            <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-green-100 text-green-700">
+                              <span className="hidden md:inline">목표 {SAMPLE_REFLECTIONS.daily[dateKey].goals.length}</span>
+                              <span className="md:hidden">목</span>
                             </div>
                           )}
                           {hasReflection && (
-                            <div className="text-xs px-2 py-1 rounded bg-purple-100 text-purple-700">
-                              회고 {SAMPLE_REFLECTIONS.daily[dateKey].reflections.length}
+                            <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-purple-100 text-purple-700">
+                              <span className="hidden md:inline">회고 {SAMPLE_REFLECTIONS.daily[dateKey].reflections.length}</span>
+                              <span className="md:hidden">회</span>
                             </div>
                           )}
                         </div>
@@ -473,11 +475,11 @@ export default function ReflectionPage() {
             </div>
           </div>
 
-          <div className="p-4">
-            <div className="grid grid-cols-7 gap-2">
+          <div className="p-2 md:p-4">
+            <div className="grid grid-cols-7 gap-1 md:gap-2">
               {calendarDays.map((date, idx) => {
                 if (!date) {
-                  return <div key={idx} className="min-h-[100px]" />;
+                  return <div key={idx} className="min-h-[60px] md:min-h-[100px]" />;
                 }
 
                 const isToday = date.toDateString() === today.toDateString();
@@ -492,7 +494,7 @@ export default function ReflectionPage() {
                   <button
                     key={idx}
                     onClick={() => setSelectedDate(date)}
-                    className={`min-h-[100px] p-2 rounded-lg border-2 transition-all hover:shadow-md text-left ${
+                    className={`min-h-[60px] md:min-h-[100px] p-1 md:p-2 rounded-lg border-2 transition-all hover:shadow-md text-left ${
                       isSelected
                         ? 'border-purple-500 bg-purple-50'
                         : isToday
@@ -502,21 +504,23 @@ export default function ReflectionPage() {
                   >
                     <div className="h-full flex flex-col">
                       <span
-                        className={`text-sm font-medium mb-2 ${
+                        className={`text-xs md:text-sm font-medium mb-1 md:mb-2 ${
                           dayOfWeek === 0 ? 'text-red-600' : dayOfWeek === 6 ? 'text-blue-600' : 'text-gray-700'
                         } ${isToday ? 'font-bold' : ''}`}
                       >
                         {date.getDate()}
                       </span>
-                      <div className="flex-1 flex flex-col gap-1">
+                      <div className="flex-1 flex flex-col gap-0.5 md:gap-1">
                         {hasGoal && (
-                          <div className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">
-                            목표
+                          <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-green-100 text-green-700">
+                            <span className="hidden md:inline">목표</span>
+                            <span className="md:hidden">목</span>
                           </div>
                         )}
                         {hasReflection && (
-                          <div className="text-xs px-2 py-1 rounded bg-purple-100 text-purple-700">
-                            회고
+                          <div className="text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded bg-purple-100 text-purple-700">
+                            <span className="hidden md:inline">회고</span>
+                            <span className="md:hidden">회</span>
                           </div>
                         )}
                       </div>
