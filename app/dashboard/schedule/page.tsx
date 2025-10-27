@@ -1,11 +1,15 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Calendar as CalendarIcon, ChevronDown, Plus, User, FolderKanban } from 'lucide-react';
+import { Plus, User, FolderKanban } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMobileSidebar } from '@/app/dashboard/layout';
 import Header from '@/components/shared/Header';
 import Calendar from '@/components/shared/Calendar';
+import { Select } from '@/components/shared/Select';
+import { Button } from '@/components/shared/Button';
+import EmptyState from '@/components/shared/EmptyState';
+import StatusBadge from '@/components/shared/StatusBadge';
 import { SAMPLE_SCHEDULES, SAMPLE_USERS, SAMPLE_PROJECTS } from '@/lib/data';
 import { STATUS_CONFIG } from '@/lib/constants';
 import AddScheduleModal from '@/components/schedule/AddScheduleModal';
@@ -88,43 +92,31 @@ export default function SchedulePage() {
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
               {isAdmin && (
-                <div className="relative">
-                  <select
-                    value={filterUser}
-                    onChange={(e) => setFilterUser(e.target.value)}
-                    className="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="all">전체 사원</option>
-                    {SAMPLE_USERS.filter(u => u.role === 'member').map(u => (
-                      <option key={u.id} value={u.id}>{u.name}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                </div>
+                <Select
+                  value={filterUser}
+                  onChange={(e) => setFilterUser(e.target.value)}
+                >
+                  <option value="all">전체 사원</option>
+                  {SAMPLE_USERS.filter(u => u.role === 'member').map(u => (
+                    <option key={u.id} value={u.id}>{u.name}</option>
+                  ))}
+                </Select>
               )}
 
-              <div className="relative">
-                <select
-                  value={filterProject}
-                  onChange={(e) => setFilterProject(e.target.value)}
-                  className="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="all">전체 프로젝트</option>
-                  {SAMPLE_PROJECTS.map(p => (
-                    <option key={p.id} value={p.id}>{p.title}</option>
-                  ))}
-                </select>
-                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              </div>
+              <Select
+                value={filterProject}
+                onChange={(e) => setFilterProject(e.target.value)}
+              >
+                <option value="all">전체 프로젝트</option>
+                {SAMPLE_PROJECTS.map(p => (
+                  <option key={p.id} value={p.id}>{p.title}</option>
+                ))}
+              </Select>
             </div>
 
-            <button
-              onClick={() => setShowModal('addSchedule')}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-            >
-              <Plus size={18} />
+            <Button icon={Plus} onClick={() => setShowModal('addSchedule')}>
               새 일정 추가
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -148,10 +140,7 @@ export default function SchedulePage() {
           </h3>
 
           {selectedDateSchedules.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              {/* <Calendar size={48} className="mx-auto mb-3 opacity-30" /> */}
-              <p>이 날짜에 등록된 일정이 없습니다.</p>
-            </div>
+            <EmptyState description="이 날짜에 등록된 일정이 없습니다." />
           ) : (
             <div className="space-y-3">
               {selectedDateSchedules.map((schedule) => {
@@ -169,10 +158,11 @@ export default function SchedulePage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h4 className="font-bold text-gray-900">{schedule.title}</h4>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${STATUS_CONFIG[schedule.status].color}`}>
-                            <StatusIcon size={12} />
-                            {STATUS_CONFIG[schedule.status].label}
-                          </span>
+                          <StatusBadge
+                            label={STATUS_CONFIG[schedule.status].label}
+                            icon={StatusIcon}
+                            color={STATUS_CONFIG[schedule.status].color}
+                          />
                         </div>
                         <p className="text-sm text-gray-600 mb-2">{schedule.content}</p>
                         <div className="flex items-center gap-4 text-xs text-gray-500">

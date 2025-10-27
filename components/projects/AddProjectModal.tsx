@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, X, Upload } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
 import Modal from '@/components/shared/Modal';
 import MultiSelect from '@/components/shared/MultiSelect';
+import { Input, TextArea } from '@/components/shared/Input';
+import { Select } from '@/components/shared/Select';
+import { Button } from '@/components/shared/Button';
 import { SAMPLE_USERS } from '@/lib/data';
 import { STATUS_CONFIG } from '@/lib/constants';
 import type { ProjectStatus } from '@/lib/types';
@@ -48,70 +51,52 @@ export default function AddProjectModal({ onClose }: AddProjectModalProps) {
   return (
     <Modal title="새 프로젝트 추가" onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">프로젝트 제목</label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="프로젝트 제목을 입력하세요"
-            required
-          />
-        </div>
+        <Input
+          label="프로젝트 제목"
+          type="text"
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          placeholder="프로젝트 제목을 입력하세요"
+          required
+        />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">프로젝트 설명</label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            rows={4}
-            placeholder="프로젝트에 대한 상세 설명을 입력하세요"
-            required
-          />
-        </div>
+        <TextArea
+          label="프로젝트 설명"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          rows={4}
+          placeholder="프로젝트에 대한 상세 설명을 입력하세요"
+          required
+        />
 
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">시작일</label>
-            <input
-              type="date"
-              value={formData.startDate}
-              onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+          <Input
+            label="시작일"
+            type="date"
+            value={formData.startDate}
+            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+            required
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">종료일</label>
-            <input
-              type="date"
-              value={formData.endDate}
-              onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-              min={formData.startDate}
-            />
-          </div>
+          <Input
+            label="종료일"
+            type="date"
+            value={formData.endDate}
+            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+            required
+            min={formData.startDate}
+          />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">진행 상태</label>
-          <div className="relative">
-            <select
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value as ProjectStatus })}
-              className="appearance-none w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {Object.entries(STATUS_CONFIG).map(([key, config]) => (
-                <option key={key} value={key}>{config.label}</option>
-              ))}
-            </select>
-            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
+        <Select
+          label="진행 상태"
+          value={formData.status}
+          onChange={(e) => setFormData({ ...formData, status: e.target.value as ProjectStatus })}
+        >
+          {Object.entries(STATUS_CONFIG).map(([key, config]) => (
+            <option key={key} value={key}>{config.label}</option>
+          ))}
+        </Select>
 
         <MultiSelect
           label="팀원 선택"
@@ -149,13 +134,15 @@ export default function AddProjectModal({ onClose }: AddProjectModalProps) {
                         ({(file.size / 1024).toFixed(1)} KB)
                       </span>
                     </div>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => removeFile(index)}
-                      className="p-1 hover:bg-gray-200 rounded transition-colors flex-shrink-0"
+                      className="p-1"
                     >
                       <X size={16} className="text-gray-500" />
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -164,19 +151,12 @@ export default function AddProjectModal({ onClose }: AddProjectModalProps) {
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-          >
+          <Button type="button" variant="ghost" onClick={onClose}>
             취소
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
+          </Button>
+          <Button type="submit">
             프로젝트 추가
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

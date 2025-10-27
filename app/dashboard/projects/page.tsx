@@ -1,10 +1,14 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Plus, Users, ChevronDown, FolderKanban } from 'lucide-react';
+import { Plus, FolderKanban } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMobileSidebar } from '@/app/dashboard/layout';
 import Header from '@/components/shared/Header';
+import { Select } from '@/components/shared/Select';
+import { Button } from '@/components/shared/Button';
+import EmptyState from '@/components/shared/EmptyState';
+import MemberAvatarGroup from '@/components/shared/MemberAvatarGroup';
 import { SAMPLE_PROJECTS, SAMPLE_USERS } from '@/lib/data';
 import { STATUS_CONFIG } from '@/lib/constants';
 import AddProjectModal from '@/components/projects/AddProjectModal';
@@ -69,27 +73,19 @@ export default function ProjectsPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="all">전체 상태</option>
-                  {Object.entries(STATUS_CONFIG).map(([key, config]) => (
-                    <option key={key} value={key}>{config.label}</option>
-                  ))}
-                </select>
-                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              </div>
-
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+              <Select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <Plus size={18} />
+                <option value="all">전체 상태</option>
+                {Object.entries(STATUS_CONFIG).map(([key, config]) => (
+                  <option key={key} value={key}>{config.label}</option>
+                ))}
+              </Select>
+
+              <Button icon={Plus} onClick={() => setShowAddModal(true)}>
                 새 프로젝트
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -147,34 +143,17 @@ export default function ProjectsPage() {
                     <div>{project.startDate} ~ {project.endDate}</div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Users size={14} className="text-gray-400" />
-                    <div className="flex items-center -space-x-1.5">
-                      {members.slice(0, 3).map((member) => (
-                        <div
-                          key={member.id}
-                          className="w-6 h-6 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center text-xs"
-                          title={member.name}
-                        >
-                          {member.avatar}
-                        </div>
-                      ))}
-                      {members.length > 3 && (
-                        <div className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium">
-                          +{members.length - 3}
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <MemberAvatarGroup members={members} />
                 </div>
               );
             })}
 
             {(!groupedProjects[mobileStatusTab] || groupedProjects[mobileStatusTab].length === 0) && (
-              <div className="text-center py-12 text-gray-400">
-                <FolderKanban size={48} className="mx-auto mb-3 opacity-30" />
-                <p className="text-sm">프로젝트가 없습니다</p>
-              </div>
+              <EmptyState
+                icon={FolderKanban}
+                description="프로젝트가 없습니다"
+                className="py-12"
+              />
             )}
           </div>
         </div>
@@ -222,34 +201,18 @@ export default function ProjectsPage() {
                           <div>{project.endDate}</div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <Users size={14} className="text-gray-400" />
-                          <div className="flex items-center -space-x-1.5">
-                            {members.slice(0, 3).map((member) => (
-                              <div
-                                key={member.id}
-                                className="w-6 h-6 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center text-xs"
-                                title={member.name}
-                              >
-                                {member.avatar}
-                              </div>
-                            ))}
-                            {members.length > 3 && (
-                              <div className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium">
-                                +{members.length - 3}
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        <MemberAvatarGroup members={members} />
                       </div>
                     );
                   })}
 
                   {projects.length === 0 && (
-                    <div className="text-center py-8 text-gray-400">
-                      <FolderKanban size={32} className="mx-auto mb-2 opacity-30" />
-                      <p className="text-xs">프로젝트 없음</p>
-                    </div>
+                    <EmptyState
+                      icon={FolderKanban}
+                      iconSize={32}
+                      description="프로젝트 없음"
+                      className="py-8 text-xs"
+                    />
                   )}
                 </div>
               </div>
