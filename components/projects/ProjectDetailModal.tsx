@@ -47,7 +47,7 @@ export default function ProjectDetailModal({
   return (
     <Modal title={isEditing ? "프로젝트 수정" : "프로젝트 상세"} onClose={onClose}>
       <div className="space-y-6">
-        <div>
+        <div className='flex justify-between items-center'>
           <h3 className="text-xl font-bold text-gray-900 mb-2">{project.title}</h3>
           <div className="flex items-center gap-2">
             {(isOwner || isAdmin) ? (
@@ -226,7 +226,7 @@ export default function ProjectDetailModal({
               </div>
             </div>
 
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">진행 상태</label>
               <div className="relative">
                 <select
@@ -240,7 +240,7 @@ export default function ProjectDetailModal({
                 </select>
                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               </div>
-            </div>
+            </div> */}
 
             <div>
               <div className="flex items-center justify-between mb-3">
