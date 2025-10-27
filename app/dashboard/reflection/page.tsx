@@ -3,11 +3,13 @@
 import { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, Target } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useMobileSidebar } from '@/app/dashboard/layout';
 import Header from '@/components/shared/Header';
 import { SAMPLE_REFLECTIONS, SAMPLE_USERS } from '@/lib/data';
 
 export default function ReflectionPage() {
   const { currentUser } = useAuth();
+  const { toggleSidebar } = useMobileSidebar();
   const [selectedDate, setSelectedDate] = useState(new Date(2025, 9, 24));
   const [reflectionTab, setReflectionTab] = useState<'daily' | 'weekly' | 'monthly'>('daily');
   const [filterUser, setFilterUser] = useState('all');
@@ -87,35 +89,207 @@ export default function ReflectionPage() {
       });
     }, [filteredReflections, filterUser]);
 
+    // Admin's own goals and reflections
+    const adminMonthlyGoal = SAMPLE_REFLECTIONS.monthly?.[monthKey]?.goals.find(g => g.userId === currentUser.id);
+    const adminMonthlyReflection = SAMPLE_REFLECTIONS.monthly?.[monthKey]?.reflections.find(r => r.userId === currentUser.id);
+    const adminWeeklyGoal = SAMPLE_REFLECTIONS.weekly?.[weekKey]?.goals.find(g => g.userId === currentUser.id);
+    const adminWeeklyReflection = SAMPLE_REFLECTIONS.weekly?.[weekKey]?.reflections.find(r => r.userId === currentUser.id);
+    const adminDailyGoal = SAMPLE_REFLECTIONS.daily?.[dateKey]?.goals.find(g => g.userId === currentUser.id);
+    const adminDailyReflection = SAMPLE_REFLECTIONS.daily?.[dateKey]?.reflections.find(r => r.userId === currentUser.id);
+
     return (
       <>
-        <Header currentUser={currentUser} title="목표·회고" />
+        <Header currentUser={currentUser} title="목표·회고" onMenuClick={toggleSidebar} />
         <div className="p-6 space-y-6">
+          {/* Admin's personal goals and reflections */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-2xl">{currentUser.avatar}</span>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">나의 목표·회고</h3>
+                <p className="text-xs text-gray-600">관리자 본인의 목표와 회고를 작성할 수 있습니다</p>
+              </div>
+            </div>
+
+            {/* Monthly */}
+            <div className="bg-white rounded-lg p-4 mb-4">
+              <h4 className="text-sm font-bold text-gray-800 mb-3">
+                {year}년 {month + 1}월 - 월간 목표·회고
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-2 block">월간 목표</label>
+                  {adminMonthlyGoal ? (
+                    <div className="bg-green-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-700 whitespace-pre-line mb-2">{adminMonthlyGoal.content}</p>
+                      <button className="text-xs text-green-700 hover:text-green-800 font-medium">수정</button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
+                      <textarea
+                        className="w-full text-sm resize-none focus:outline-none"
+                        rows={3}
+                        placeholder="이번 달의 목표를 작성해주세요..."
+                      />
+                      <button className="mt-2 w-full px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium">
+                        목표 등록
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-2 block">월간 회고</label>
+                  {adminMonthlyReflection ? (
+                    <div className="bg-purple-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-700 mb-2">{adminMonthlyReflection.content}</p>
+                      <button className="text-xs text-purple-700 hover:text-purple-800 font-medium">수정</button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
+                      <textarea
+                        className="w-full text-sm resize-none focus:outline-none"
+                        rows={3}
+                        placeholder="이번 달의 회고를 작성해주세요..."
+                      />
+                      <button className="mt-2 w-full px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-xs font-medium">
+                        회고 등록
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Weekly */}
+            <div className="bg-white rounded-lg p-4 mb-4">
+              <h4 className="text-sm font-bold text-gray-800 mb-3">
+                {month + 1}월 {weekOfMonth}째주 - 주간 목표·회고
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-2 block">주간 목표</label>
+                  {adminWeeklyGoal ? (
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-700 whitespace-pre-line mb-2">{adminWeeklyGoal.content}</p>
+                      <button className="text-xs text-blue-700 hover:text-blue-800 font-medium">수정</button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
+                      <textarea
+                        className="w-full text-sm resize-none focus:outline-none"
+                        rows={3}
+                        placeholder="이번 주의 목표를 작성해주세요..."
+                      />
+                      <button className="mt-2 w-full px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium">
+                        목표 등록
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-2 block">주간 회고</label>
+                  {adminWeeklyReflection ? (
+                    <div className="bg-indigo-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-700 mb-2">{adminWeeklyReflection.content}</p>
+                      <button className="text-xs text-indigo-700 hover:text-indigo-800 font-medium">수정</button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
+                      <textarea
+                        className="w-full text-sm resize-none focus:outline-none"
+                        rows={3}
+                        placeholder="이번 주의 회고를 작성해주세요..."
+                      />
+                      <button className="mt-2 w-full px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-xs font-medium">
+                        회고 등록
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Daily */}
+            <div className="bg-white rounded-lg p-4">
+              <h4 className="text-sm font-bold text-gray-800 mb-3">
+                {selectedDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' })} - 일간 목표·회고
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-2 block">오늘의 목표</label>
+                  {adminDailyGoal ? (
+                    <div className="bg-teal-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-700 whitespace-pre-line mb-2">{adminDailyGoal.content}</p>
+                      <button className="text-xs text-teal-700 hover:text-teal-800 font-medium">수정</button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
+                      <textarea
+                        className="w-full text-sm resize-none focus:outline-none"
+                        rows={3}
+                        placeholder="오늘의 목표를 작성해주세요..."
+                      />
+                      <button className="mt-2 w-full px-3 py-1.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-xs font-medium">
+                        목표 등록
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-2 block">오늘의 회고</label>
+                  {adminDailyReflection ? (
+                    <div className="bg-orange-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-700 mb-2">{adminDailyReflection.content}</p>
+                      <button className="text-xs text-orange-700 hover:text-orange-800 font-medium">수정</button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
+                      <textarea
+                        className="w-full text-sm resize-none focus:outline-none"
+                        rows={3}
+                        placeholder="오늘의 회고를 작성해주세요..."
+                      />
+                      <button className="mt-2 w-full px-3 py-1.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-xs font-medium">
+                        회고 등록
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Team section header */}
+          <div className="flex items-center gap-2">
+            <div className="h-px flex-1 bg-gray-300"></div>
+            <span className="text-sm font-bold text-gray-600">팀원 목표·회고 조회</span>
+            <div className="h-px flex-1 bg-gray-300"></div>
+          </div>
           {/* 캘린더 */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-green-600 text-white p-6">
+            <div className="bg-white p-6 border-b border-gray-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-bold">
+                <h3 className="text-2xl font-bold text-gray-900">
                   {year}년 {month + 1}월
                 </h3>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => navigateMonth(-1)}
-                    className="p-2 hover:bg-green-700 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   >
-                    <ChevronLeft size={20} />
+                    <ChevronLeft size={20} className="text-gray-700" />
                   </button>
                   <button
                     onClick={() => setSelectedDate(today)}
-                    className="px-4 py-2 bg-green-700 hover:bg-green-800 rounded-lg text-sm font-medium transition-colors"
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
                   >
                     오늘
                   </button>
                   <button
                     onClick={() => navigateMonth(1)}
-                    className="p-2 hover:bg-green-700 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   >
-                    <ChevronRight size={20} />
+                    <ChevronRight size={20} className="text-gray-700" />
                   </button>
                 </div>
               </div>
@@ -125,7 +299,7 @@ export default function ReflectionPage() {
                   <div
                     key={day}
                     className={`text-center py-2 text-sm font-medium ${
-                      idx === 0 ? 'text-red-200' : idx === 6 ? 'text-blue-200' : 'text-white'
+                      idx === 0 ? 'text-red-600' : idx === 6 ? 'text-blue-600' : 'text-gray-700'
                     }`}
                   >
                     {day}
@@ -288,7 +462,7 @@ export default function ReflectionPage() {
 
   return (
     <>
-      <Header currentUser={currentUser} title="목표·회고" />
+      <Header currentUser={currentUser} title="목표·회고" onMenuClick={toggleSidebar} />
       <div className="p-6 space-y-6">
         {/* 월간 목표·회고 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -342,29 +516,29 @@ export default function ReflectionPage() {
 
         {/* 캘린더 (사원용) */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-purple-600 text-white p-6">
+          <div className="bg-white p-6 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-2xl font-bold text-gray-900">
                 {year}년 {month + 1}월
               </h3>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => navigateMonth(-1)}
-                  className="p-2 hover:bg-purple-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <ChevronLeft size={20} />
+                  <ChevronLeft size={20} className="text-gray-700" />
                 </button>
                 <button
                   onClick={() => setSelectedDate(today)}
-                  className="px-4 py-2 bg-purple-700 hover:bg-purple-800 rounded-lg text-sm font-medium transition-colors"
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
                 >
                   오늘
                 </button>
                 <button
                   onClick={() => navigateMonth(1)}
-                  className="p-2 hover:bg-purple-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <ChevronRight size={20} />
+                  <ChevronRight size={20} className="text-gray-700" />
                 </button>
               </div>
             </div>
@@ -374,7 +548,7 @@ export default function ReflectionPage() {
                 <div
                   key={day}
                   className={`text-center py-2 text-sm font-medium ${
-                    idx === 0 ? 'text-red-200' : idx === 6 ? 'text-blue-200' : 'text-white'
+                    idx === 0 ? 'text-red-600' : idx === 6 ? 'text-blue-600' : 'text-gray-700'
                   }`}
                 >
                   {day}

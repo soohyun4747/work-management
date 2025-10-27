@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, FileText, Download, Upload, Trash2 } from 'lucide-react';
 import Modal from '@/components/shared/Modal';
 import { SAMPLE_USERS } from '@/lib/data';
 import { STATUS_CONFIG } from '@/lib/constants';
-import type { Project, User } from '@/lib/types';
+import type { Project, User, ProjectStatus } from '@/lib/types';
 
 interface ProjectDetailModalProps {
   project: Project;
@@ -22,9 +22,27 @@ export default function ProjectDetailModal({
 }: ProjectDetailModalProps) {
   const [status, setStatus] = useState(project.status);
   const [isEditing, setIsEditing] = useState(false);
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const statusMenuRef = useRef<HTMLDivElement>(null);
   const StatusIcon = STATUS_CONFIG[status].icon;
   const members = SAMPLE_USERS.filter(u => project.members.includes(u.id));
   const isOwner = project.members.includes(currentUser.id);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (statusMenuRef.current && !statusMenuRef.current.contains(event.target as Node)) {
+        setShowStatusMenu(false);
+      }
+    };
+
+    if (showStatusMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showStatusMenu]);
 
   return (
     <Modal title={isEditing ? "프로젝트 수정" : "프로젝트 상세"} onClose={onClose}>
@@ -32,10 +50,46 @@ export default function ProjectDetailModal({
         <div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">{project.title}</h3>
           <div className="flex items-center gap-2">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${STATUS_CONFIG[status].color}`}>
-              <StatusIcon size={16} />
-              {STATUS_CONFIG[status].label}
-            </span>
+            {(isOwner || isAdmin) ? (
+              <div className="relative" ref={statusMenuRef}>
+                <button
+                  onClick={() => setShowStatusMenu(!showStatusMenu)}
+                  className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${STATUS_CONFIG[status].color} hover:opacity-80 transition-opacity`}
+                >
+                  <StatusIcon size={16} />
+                  {STATUS_CONFIG[status].label}
+                  <ChevronDown size={14} />
+                </button>
+
+                {showStatusMenu && (
+                  <div className="absolute top-full mt-2 left-0 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10 min-w-[150px]">
+                    {Object.entries(STATUS_CONFIG).map(([key, config]) => {
+                      const Icon = config.icon;
+                      return (
+                        <button
+                          key={key}
+                          onClick={() => {
+                            setStatus(key as ProjectStatus);
+                            setShowStatusMenu(false);
+                          }}
+                          className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 ${
+                            status === key ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'
+                          }`}
+                        >
+                          <Icon size={14} />
+                          {config.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${STATUS_CONFIG[status].color}`}>
+                <StatusIcon size={16} />
+                {STATUS_CONFIG[status].label}
+              </span>
+            )}
           </div>
         </div>
 
@@ -58,24 +112,6 @@ export default function ProjectDetailModal({
                 <p className="text-sm text-gray-900">{project.endDate}</p>
               </div>
             </div>
-
-            {(isOwner || isAdmin) && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">진행 상태</label>
-                <div className="relative">
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value as any)}
-                    className="appearance-none w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {Object.entries(STATUS_CONFIG).map(([key, config]) => (
-                      <option key={key} value={key}>{config.label}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-            )}
 
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-3">팀원</h4>

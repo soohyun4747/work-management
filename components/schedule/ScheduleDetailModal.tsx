@@ -22,9 +22,9 @@ export default function ScheduleDetailModal({
 }: ScheduleDetailModalProps) {
   const [status, setStatus] = useState(schedule.status);
   const project = SAMPLE_PROJECTS.find(p => p.id === schedule.projectId);
-  const user = SAMPLE_USERS.find(u => u.id === schedule.userId);
+  const users = SAMPLE_USERS.filter(u => schedule.userIds.includes(u.id));
   const StatusIcon = STATUS_CONFIG[status].icon;
-  const isOwner = schedule.userId === currentUser.id;
+  const isOwner = schedule.userIds.includes(currentUser.id);
 
   return (
     <Modal title="일정 상세" onClose={onClose}>
@@ -42,10 +42,14 @@ export default function ScheduleDetailModal({
         <div className="space-y-3">
           <div className="flex items-center gap-3 text-sm">
             <span className="text-gray-500 w-20">담당자</span>
-            <span className="flex items-center gap-2">
-              <span className="text-xl">{user?.avatar}</span>
-              <span className="font-medium">{user?.name}</span>
-            </span>
+            <div className="flex flex-wrap gap-2">
+              {users.map(user => (
+                <span key={user.id} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded">
+                  <span>{user.avatar}</span>
+                  <span className="font-medium">{user.name}</span>
+                </span>
+              ))}
+            </div>
           </div>
 
           <div className="flex items-center gap-3 text-sm">

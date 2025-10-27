@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, ChevronDown, Plus, User, FolderKanban } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useMobileSidebar } from '@/app/dashboard/layout';
 import Header from '@/components/shared/Header';
 import { SAMPLE_SCHEDULES, SAMPLE_USERS, SAMPLE_PROJECTS } from '@/lib/data';
 import { STATUS_CONFIG } from '@/lib/constants';
@@ -12,6 +13,7 @@ import type { Schedule } from '@/lib/types';
 
 export default function SchedulePage() {
   const { currentUser } = useAuth();
+  const { toggleSidebar } = useMobileSidebar();
   const [selectedDate, setSelectedDate] = useState(new Date(2025, 9, 24));
   const [filterUser, setFilterUser] = useState('all');
   const [filterProject, setFilterProject] = useState('all');
@@ -35,8 +37,8 @@ export default function SchedulePage() {
   const filteredSchedules = useMemo(() => {
     return SAMPLE_SCHEDULES.filter(schedule => {
       const matchUser = isAdmin
-        ? filterUser === 'all' || schedule.userId === parseInt(filterUser)
-        : schedule.userId === currentUser.id;
+        ? filterUser === 'all' || schedule.userIds.includes(parseInt(filterUser))
+        : schedule.userIds.includes(currentUser.id);
       const matchProject = filterProject === 'all' || schedule.projectId === parseInt(filterProject);
       return matchUser && matchProject;
     });
@@ -65,7 +67,7 @@ export default function SchedulePage() {
 
   return (
     <>
-      <Header currentUser={currentUser} title="일정 관리" />
+      <Header currentUser={currentUser} title="일정 관리" onMenuClick={toggleSidebar} />
       <div className="p-6 space-y-6">
         {/* 필터 및 액션 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -114,29 +116,29 @@ export default function SchedulePage() {
 
         {/* 캘린더 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-blue-600 text-white p-6">
+          <div className="bg-white p-6 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-2xl font-bold text-gray-900">
                 {year}년 {month + 1}월
               </h3>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => navigateMonth(-1)}
-                  className="p-2 hover:bg-blue-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <ChevronLeft size={20} />
+                  <ChevronLeft size={20} className="text-gray-700" />
                 </button>
                 <button
                   onClick={() => setSelectedDate(today)}
-                  className="px-4 py-2 bg-blue-700 hover:bg-blue-800 rounded-lg text-sm font-medium transition-colors"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                 >
                   오늘
                 </button>
                 <button
                   onClick={() => navigateMonth(1)}
-                  className="p-2 hover:bg-blue-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <ChevronRight size={20} />
+                  <ChevronRight size={20} className="text-gray-700" />
                 </button>
               </div>
             </div>
@@ -146,7 +148,7 @@ export default function SchedulePage() {
                 <div
                   key={day}
                   className={`text-center py-2 text-sm font-medium ${
-                    idx === 0 ? 'text-red-200' : idx === 6 ? 'text-blue-200' : 'text-white'
+                    idx === 0 ? 'text-red-600' : idx === 6 ? 'text-blue-600' : 'text-gray-700'
                   }`}
                 >
                   {day}
@@ -223,7 +225,7 @@ export default function SchedulePage() {
             <div className="space-y-3">
               {selectedDateSchedules.map((schedule) => {
                 const project = SAMPLE_PROJECTS.find(p => p.id === schedule.projectId);
-                const user = SAMPLE_USERS.find(u => u.id === schedule.userId);
+                const users = SAMPLE_USERS.filter(u => schedule.userIds.includes(u.id));
                 const StatusIcon = STATUS_CONFIG[schedule.status].icon;
 
                 return (
@@ -245,7 +247,7 @@ export default function SchedulePage() {
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
                             <User size={14} />
-                            {user?.name}
+                            {users.map(u => u.name).join(', ')}
                           </span>
                           <span className="flex items-center gap-1">
                             <FolderKanban size={14} />
