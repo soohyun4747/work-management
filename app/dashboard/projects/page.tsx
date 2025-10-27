@@ -15,6 +15,7 @@ export default function ProjectsPage() {
   const { currentUser } = useAuth();
   const { toggleSidebar } = useMobileSidebar();
   const [statusFilter, setStatusFilter] = useState('all');
+  const [mobileStatusTab, setMobileStatusTab] = useState<string>('pending');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -93,8 +94,93 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        {/* 프로젝트 Kanban 보드 */}
-        <div className="grid grid-cols-4 gap-4">
+        {/* 모바일 탭 (md 이하에서만 표시) */}
+        <div className="md:hidden bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          {/* 탭 헤더 */}
+          <div className="flex border-b border-gray-200 overflow-x-auto">
+            {Object.entries(STATUS_CONFIG).map(([statusKey, statusConfig]) => {
+              const StatusIcon = statusConfig.icon;
+              const projects = groupedProjects[statusKey] || [];
+
+              return (
+                <button
+                  key={statusKey}
+                  onClick={() => setMobileStatusTab(statusKey)}
+                  className={`flex-1 min-w-[80px] px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+                    mobileStatusTab === statusKey
+                      ? 'border-blue-600 text-blue-700 bg-blue-50'
+                      : 'border-transparent text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <StatusIcon size={16} />
+                    <span>{statusConfig.label}</span>
+                    <span className="text-xs bg-gray-200 px-1.5 py-0.5 rounded">
+                      {projects.length}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 탭 콘텐츠 */}
+          <div className="p-4 space-y-3 min-h-[400px]">
+            {groupedProjects[mobileStatusTab]?.map((project) => {
+              const members = SAMPLE_USERS.filter(u => project.members.includes(u.id));
+
+              return (
+                <div
+                  key={project.id}
+                  onClick={() => setSelectedProject(project)}
+                  className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all cursor-pointer"
+                >
+                  <h4 className="font-bold text-gray-900 mb-2 hover:text-blue-600">
+                    {project.title}
+                  </h4>
+
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    {project.description}
+                  </p>
+
+                  <div className="text-xs text-gray-500 mb-3">
+                    <div>{project.startDate} ~ {project.endDate}</div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Users size={14} className="text-gray-400" />
+                    <div className="flex items-center -space-x-1.5">
+                      {members.slice(0, 3).map((member) => (
+                        <div
+                          key={member.id}
+                          className="w-6 h-6 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center text-xs"
+                          title={member.name}
+                        >
+                          {member.avatar}
+                        </div>
+                      ))}
+                      {members.length > 3 && (
+                        <div className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium">
+                          +{members.length - 3}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {(!groupedProjects[mobileStatusTab] || groupedProjects[mobileStatusTab].length === 0) && (
+              <div className="text-center py-12 text-gray-400">
+                <FolderKanban size={48} className="mx-auto mb-3 opacity-30" />
+                <p className="text-sm">프로젝트가 없습니다</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 데스크톱 Kanban 보드 (md 이상에서만 표시) */}
+        <div className="hidden md:grid grid-cols-4 gap-4">
           {Object.entries(STATUS_CONFIG).map(([statusKey, statusConfig]) => {
             const StatusIcon = statusConfig.icon;
             const projects = groupedProjects[statusKey] || [];

@@ -84,7 +84,6 @@ export default function AddScheduleModal({ onClose, currentUser, isAdmin }: AddS
           selected={formData.userIds}
           onChange={(selected) => setFormData({ ...formData, userIds: selected })}
           placeholder="담당자를 선택하세요"
-          disabled={!isAdmin}
         />
 
         <div>

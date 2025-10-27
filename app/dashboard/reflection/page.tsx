@@ -101,170 +101,6 @@ export default function ReflectionPage() {
       <>
         <Header currentUser={currentUser} title="목표·회고" onMenuClick={toggleSidebar} />
         <div className="p-6 space-y-6">
-          {/* Admin's personal goals and reflections */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">{currentUser.avatar}</span>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">나의 목표·회고</h3>
-                <p className="text-xs text-gray-600">관리자 본인의 목표와 회고를 작성할 수 있습니다</p>
-              </div>
-            </div>
-
-            {/* Monthly */}
-            <div className="bg-white rounded-lg p-4 mb-4">
-              <h4 className="text-sm font-bold text-gray-800 mb-3">
-                {year}년 {month + 1}월 - 월간 목표·회고
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-medium text-gray-600 mb-2 block">월간 목표</label>
-                  {adminMonthlyGoal ? (
-                    <div className="bg-green-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-700 whitespace-pre-line mb-2">{adminMonthlyGoal.content}</p>
-                      <button className="text-xs text-green-700 hover:text-green-800 font-medium">수정</button>
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
-                      <textarea
-                        className="w-full text-sm resize-none focus:outline-none"
-                        rows={3}
-                        placeholder="이번 달의 목표를 작성해주세요..."
-                      />
-                      <button className="mt-2 w-full px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium">
-                        목표 등록
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-gray-600 mb-2 block">월간 회고</label>
-                  {adminMonthlyReflection ? (
-                    <div className="bg-purple-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-700 mb-2">{adminMonthlyReflection.content}</p>
-                      <button className="text-xs text-purple-700 hover:text-purple-800 font-medium">수정</button>
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
-                      <textarea
-                        className="w-full text-sm resize-none focus:outline-none"
-                        rows={3}
-                        placeholder="이번 달의 회고를 작성해주세요..."
-                      />
-                      <button className="mt-2 w-full px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-xs font-medium">
-                        회고 등록
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Weekly */}
-            <div className="bg-white rounded-lg p-4 mb-4">
-              <h4 className="text-sm font-bold text-gray-800 mb-3">
-                {month + 1}월 {weekOfMonth}째주 - 주간 목표·회고
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-medium text-gray-600 mb-2 block">주간 목표</label>
-                  {adminWeeklyGoal ? (
-                    <div className="bg-blue-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-700 whitespace-pre-line mb-2">{adminWeeklyGoal.content}</p>
-                      <button className="text-xs text-blue-700 hover:text-blue-800 font-medium">수정</button>
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
-                      <textarea
-                        className="w-full text-sm resize-none focus:outline-none"
-                        rows={3}
-                        placeholder="이번 주의 목표를 작성해주세요..."
-                      />
-                      <button className="mt-2 w-full px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium">
-                        목표 등록
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-gray-600 mb-2 block">주간 회고</label>
-                  {adminWeeklyReflection ? (
-                    <div className="bg-indigo-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-700 mb-2">{adminWeeklyReflection.content}</p>
-                      <button className="text-xs text-indigo-700 hover:text-indigo-800 font-medium">수정</button>
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
-                      <textarea
-                        className="w-full text-sm resize-none focus:outline-none"
-                        rows={3}
-                        placeholder="이번 주의 회고를 작성해주세요..."
-                      />
-                      <button className="mt-2 w-full px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-xs font-medium">
-                        회고 등록
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Daily */}
-            <div className="bg-white rounded-lg p-4">
-              <h4 className="text-sm font-bold text-gray-800 mb-3">
-                {selectedDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' })} - 일간 목표·회고
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-medium text-gray-600 mb-2 block">오늘의 목표</label>
-                  {adminDailyGoal ? (
-                    <div className="bg-teal-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-700 whitespace-pre-line mb-2">{adminDailyGoal.content}</p>
-                      <button className="text-xs text-teal-700 hover:text-teal-800 font-medium">수정</button>
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
-                      <textarea
-                        className="w-full text-sm resize-none focus:outline-none"
-                        rows={3}
-                        placeholder="오늘의 목표를 작성해주세요..."
-                      />
-                      <button className="mt-2 w-full px-3 py-1.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-xs font-medium">
-                        목표 등록
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-gray-600 mb-2 block">오늘의 회고</label>
-                  {adminDailyReflection ? (
-                    <div className="bg-orange-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-700 mb-2">{adminDailyReflection.content}</p>
-                      <button className="text-xs text-orange-700 hover:text-orange-800 font-medium">수정</button>
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
-                      <textarea
-                        className="w-full text-sm resize-none focus:outline-none"
-                        rows={3}
-                        placeholder="오늘의 회고를 작성해주세요..."
-                      />
-                      <button className="mt-2 w-full px-3 py-1.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-xs font-medium">
-                        회고 등록
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Team section header */}
-          <div className="flex items-center gap-2">
-            <div className="h-px flex-1 bg-gray-300"></div>
-            <span className="text-sm font-bold text-gray-600">팀원 목표·회고 조회</span>
-            <div className="h-px flex-1 bg-gray-300"></div>
-          </div>
           {/* 캘린더 */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="bg-white p-6 border-b border-gray-200">
@@ -396,7 +232,87 @@ export default function ReflectionPage() {
             </div>
           </div>
 
-          {/* 사원별 목표·회고 카드 */}
+          {/* 관리자 본인의 목표·회고 */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-2xl">{currentUser.avatar}</span>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">나의 목표·회고</h3>
+                <p className="text-xs text-gray-600">
+                  {reflectionTab === 'daily' ? selectedDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' }) :
+                   reflectionTab === 'weekly' ? `${month + 1}월 ${weekOfMonth}째주` :
+                   `${year}년 ${month + 1}월`}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 목표 */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  {reflectionTab === 'daily' ? '오늘의 목표' : reflectionTab === 'weekly' ? '주간 목표' : '월간 목표'}
+                </label>
+                {(reflectionTab === 'daily' ? adminDailyGoal : reflectionTab === 'weekly' ? adminWeeklyGoal : adminMonthlyGoal) ? (
+                  <div className={`p-4 rounded-lg ${reflectionTab === 'daily' ? 'bg-teal-50' : reflectionTab === 'weekly' ? 'bg-blue-50' : 'bg-green-50'}`}>
+                    <p className="text-sm text-gray-700 whitespace-pre-line mb-3">
+                      {reflectionTab === 'daily' ? adminDailyGoal?.content : reflectionTab === 'weekly' ? adminWeeklyGoal?.content : adminMonthlyGoal?.content}
+                    </p>
+                    <button className={`text-xs font-medium ${reflectionTab === 'daily' ? 'text-teal-700 hover:text-teal-800' : reflectionTab === 'weekly' ? 'text-blue-700 hover:text-blue-800' : 'text-green-700 hover:text-green-800'}`}>
+                      수정
+                    </button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                    <textarea
+                      className="w-full text-sm resize-none focus:outline-none"
+                      rows={4}
+                      placeholder={`${reflectionTab === 'daily' ? '오늘' : reflectionTab === 'weekly' ? '이번 주' : '이번 달'}의 목표를 작성해주세요...`}
+                    />
+                    <button className={`mt-2 w-full px-4 py-2 text-white rounded-lg transition-colors text-sm font-medium ${reflectionTab === 'daily' ? 'bg-teal-600 hover:bg-teal-700' : reflectionTab === 'weekly' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'}`}>
+                      목표 등록
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* 회고 */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  {reflectionTab === 'daily' ? '오늘의 회고' : reflectionTab === 'weekly' ? '주간 회고' : '월간 회고'}
+                </label>
+                {(reflectionTab === 'daily' ? adminDailyReflection : reflectionTab === 'weekly' ? adminWeeklyReflection : adminMonthlyReflection) ? (
+                  <div className={`p-4 rounded-lg ${reflectionTab === 'daily' ? 'bg-orange-50' : reflectionTab === 'weekly' ? 'bg-indigo-50' : 'bg-purple-50'}`}>
+                    <p className="text-sm text-gray-700 mb-3">
+                      {reflectionTab === 'daily' ? adminDailyReflection?.content : reflectionTab === 'weekly' ? adminWeeklyReflection?.content : adminMonthlyReflection?.content}
+                    </p>
+                    <button className={`text-xs font-medium ${reflectionTab === 'daily' ? 'text-orange-700 hover:text-orange-800' : reflectionTab === 'weekly' ? 'text-indigo-700 hover:text-indigo-800' : 'text-purple-700 hover:text-purple-800'}`}>
+                      수정
+                    </button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                    <textarea
+                      className="w-full text-sm resize-none focus:outline-none"
+                      rows={4}
+                      placeholder={`${reflectionTab === 'daily' ? '오늘' : reflectionTab === 'weekly' ? '이번 주' : '이번 달'}의 회고를 작성해주세요...`}
+                    />
+                    <button className={`mt-2 w-full px-4 py-2 text-white rounded-lg transition-colors text-sm font-medium ${reflectionTab === 'daily' ? 'bg-orange-600 hover:bg-orange-700' : reflectionTab === 'weekly' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-purple-600 hover:bg-purple-700'}`}>
+                      회고 등록
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 팀원 섹션 헤더 */}
+          <div className="flex items-center gap-2">
+            <div className="h-px flex-1 bg-gray-300"></div>
+            <span className="text-sm font-bold text-gray-600">팀원 목표·회고</span>
+            <div className="h-px flex-1 bg-gray-300"></div>
+          </div>
+
+          {/* 팀원별 목표·회고 카드 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {groupedByUser.map(({ user, goal, reflection }) => (
               <div key={user.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
