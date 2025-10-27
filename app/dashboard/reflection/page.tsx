@@ -163,7 +163,7 @@ export default function ReflectionPage() {
           </div>
 
           {/* 관리자 본인의 목표·회고 */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-2xl">{currentUser.avatar}</span>
               <div>
