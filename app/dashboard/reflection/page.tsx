@@ -137,7 +137,7 @@ export default function ReflectionPage() {
                   <button
                     key={tab.id}
                     onClick={() => setReflectionTab(tab.id)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-colors ${
                       reflectionTab === tab.id ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >

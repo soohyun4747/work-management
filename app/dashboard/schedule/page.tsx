@@ -149,7 +149,7 @@ export default function SchedulePage() {
 
           {selectedDateSchedules.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              <Calendar size={48} className="mx-auto mb-3 opacity-30" />
+              {/* <Calendar size={48} className="mx-auto mb-3 opacity-30" /> */}
               <p>이 날짜에 등록된 일정이 없습니다.</p>
             </div>
           ) : (

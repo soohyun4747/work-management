@@ -59,8 +59,8 @@ export default function Calendar({
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* 헤더 */}
-      <div className="bg-white p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white md:p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between mb-4 md:p-0 p-4">
           <h3 className="text-2xl font-bold text-gray-900">
             {title || `${year}년 ${month + 1}월`}
           </h3>
@@ -102,8 +102,8 @@ export default function Calendar({
       </div>
 
       {/* 캘린더 그리드 */}
-      <div className="p-2 md:p-4">
-        <div className="grid grid-cols-7 gap-1 md:gap-2">
+      <div className="md:p-4">
+        <div className="grid grid-cols-7 md:gap-2">
           {calendarDays.map((date, idx) => {
             if (!date) {
               return <div key={idx} className="min-h-[60px] md:min-h-[100px]" />;
@@ -118,7 +118,7 @@ export default function Calendar({
               <button
                 key={idx}
                 onClick={() => onDateSelect(date)}
-                className={`min-h-[60px] md:min-h-[100px] p-1 md:p-2 rounded-lg border-2 transition-all hover:shadow-md text-left ${
+                className={`min-h-[60px] md:min-h-[100px] p-1 md:p-2 md:rounded-lg border-[0.5px] md:border-2 border-collapse transition-all hover:shadow-md text-left ${
                   isSelected
                     ? colors.selectedBorder
                     : isToday
