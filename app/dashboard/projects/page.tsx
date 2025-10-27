@@ -61,7 +61,7 @@ export default function ProjectsPage() {
   return (
     <>
       <Header currentUser={currentUser} title="프로젝트 관리" onMenuClick={toggleSidebar} />
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 justify-self-center">
         {/* 헤더 및 필터 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between flex-wrap gap-4">

@@ -53,14 +53,14 @@ export default function DashboardLayout({
 
   return (
     <MobileSidebarContext.Provider value={{ toggleSidebar }}>
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen bg-gray-50 flex md:pl-[255px]">
         <Sidebar
           currentUser={currentUser}
           onLogout={logout}
           isOpen={isSidebarOpen}
           onClose={closeSidebar}
         />
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto items-center">{children}</main>
       </div>
     </MobileSidebarContext.Provider>
   );

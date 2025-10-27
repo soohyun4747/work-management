@@ -60,10 +60,10 @@ export default function Sidebar({
 			{/* Sidebar */}
 			<aside
 				className={`
-        fixed md:static inset-y-0 left-0 z-50
+        fixed static inset-y-0 left-0 z-50
         w-64 bg-white border-r border-gray-200 flex flex-col
         transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} max-h-[100vh]
       `}>
 				<div className='p-6 border-b border-gray-200 flex items-center justify-between'>
 					<div>
@@ -102,9 +102,9 @@ export default function Sidebar({
 				</nav>
 
 				<div className='p-4 border-t border-gray-200 space-y-2'>
-					<button className='w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50'>
+					{/* <button className='w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50'>
 						<User size={20} />내 정보
-					</button>
+					</button> */}
 					<button
 						onClick={onLogout}
 						className='w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50'>

@@ -86,7 +86,7 @@ export default function SchedulePage() {
   return (
     <>
       <Header currentUser={currentUser} title="일정 관리" onMenuClick={toggleSidebar} />
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 max-w-[900px] justify-self-center">
         {/* 필터 및 액션 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between flex-wrap gap-4">

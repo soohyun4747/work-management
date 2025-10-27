@@ -115,7 +115,7 @@ export default function ReflectionPage() {
     return (
       <>
         <Header currentUser={currentUser} title="목표·회고" onMenuClick={toggleSidebar} />
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 max-w-[900px] justify-self-center">
           {/* 캘린더 */}
           <Calendar
             year={year}
@@ -331,7 +331,7 @@ export default function ReflectionPage() {
   return (
     <>
       <Header currentUser={currentUser} title="목표·회고" onMenuClick={toggleSidebar} />
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 max-w-[900px] justify-self-center">
         {/* 월간 목표·회고 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">
